@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html>
+<!-- 
+    免责声明 - Gww(黑羽KT)
+    除注明的服务条款外，
+    其他一切因访问此网页而引致之任何意外、
+    疏忽、合约毁坏、诽谤、版权或知识产权侵犯及其所造成的损失，
+    Gww(黑羽KT)概不负责，亦不承担任何法律责任。
+ -->
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>5173客服</title>
+    <link rel="stylesheet" type="text/css" href="css/default.css">
+    <link rel="stylesheet" type="text/css" href="css/Layout.css">
+    <script>
+        window.onload = function(){
+            setInterval(function(){
+                var wh = document.documentElement.clientHeight;
+                var eh = 160;
+                ch = (wh - eh) + "px";
+                document.getElementById("wrapper").style.height = ch;
+            },1000);
+
+            setInterval(function(){
+                if ($('#sendText').val() != 0) {
+                    $('#sendBtn').attr("class", "btn_ot edit-button");
+                } else if ($('#sendText').val() == 0) {
+                    $('#sendBtn').attr("class", "btn_dis btn_ot edit-button");
+                }
+            },0);
+
+            $('.hxopen').click(function(){
+                $('.hxborder-conn').slideToggle("show");
+            });
+
+            setInterval(function(){
+                if ($('.hxborder-conn').css("display")=='none') {
+                    $('.tc').text("展开");
+                    $('.hxopen-img').css("transform", "rotate(-90deg)");
+                } else {
+                    $('.tc').text("收起");
+                    $('.hxopen-img').css("transform", "rotate(90deg)");
+                }
+            },0);
+        }
+    </script>
+    <script type="text/javascript" src="js/jquery-3.3.1.js"></script>
+</head>
+<!-- echo 把接受到的数据返回过去 -->
+
+<body class="chatbody">
+    <!-- 导航 -->
+    <nav>
+        <a href="123.html">
+            <div class="left" id="goBack">
+                <img src="images/left.png" alt="#">
+            </div>
+        </a>
+        <div class="middle">5173客服</div>
+        <div class="right">
+        </div>
+        <div class="hxborder-main">
+            <div class="hxborder-top">
+                <p>订单号:SYZH20180531-012007050</p>
+                <a class="hxopen"><img src="images/left.png" alt="#" class="hxopen-img"><span class="tc">展开</span></a>
+            </div>
+            <div class="hxborder-conn" style="display: none;">
+                <div class="hxbdtxt bg-fff">
+                    <p><input style="display: none;" value="商品标题：狼人杀人气号" id="ddp">商品标题：狼人杀人气号</p>
+                    <p><input style="display: none;"  value="商品类型：帐号" id="ddp2">商品类型：帐号</p>
+                    <p><input style="display: none;"  value="游戏区服：狼人杀(手机游戏)/苹果/微信(苹果)/全区全服" id="ddp3">游戏区服：狼人杀(手机游戏)/苹果/微信(苹果)/全区全服</p>
+                </div>
+                <div class="hxbdbtn">
+                    <button class="hxfs" id="hxfs"/>发送订单信息</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <!-- 会话列表 -->
+    <div id="wrapper" class="chatDiv">
+        <div id="entername"></div>
+        <ul id="chatlist">
+        </ul>
+    </div>
+    <!-- 发送消息的输入框和按钮 -->
+    <div class="sendMessage">
+        <div class="fot_left">
+            <div class="wkit-igh"></div>
+            <input type="file" style="display: none" id="uploadShim" class="hide">
+        </div>
+        <div class="fot_right">
+            <div class="wkit-le">
+                <input id="sendText" class="inty editbox" type="text" placeholder="说点什么吧..." />
+            </div>
+            <div class="wkit-ri">
+                <button class="btn_dis btn_ot edit-button" id="sendBtn">发送</button>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+    // 第一步   检测是否支持websocket  如果支持就创建websocket
+    var websocket = null;
+    var user = {};
+
+    if ('WebSocket' in window) {
+        websocket = new WebSocket("ws://localhost:3000/");
+    } else {
+        alert('当前浏览器不支持websocket')
+    }
+
+    // 创建节点
+    function createChatNode(obj, ismine) {
+        var today = new Date();
+        var hour = today.getHours();
+        var minute = today.getMinutes();
+
+        var apm = "上午";
+        if (hour > 12) {
+            hour = hour - 12;
+            apm = "下午";
+        }
+
+        if (minute < 10) {
+            minute = "0" + minute;
+        }
+
+        if (hour < 10) {
+            hour = "0" + hour;
+        }
+
+        var time = document.createElement('div');
+        time.className = 'sendTime';
+        time.innerHTML = (apm+hour+':'+minute);
+
+        var $li = '';
+        $li = document.createElement('div');
+        var conText = document.createElement('div');
+        var qpText = document.createElement('div');
+        var arrow = document.createElement('div');
+        var img = document.createElement('div');
+        var mz = document.createElement('div');
+        conText.setAttribute("class", "clearfloat conText");
+        if (ismine == true) {
+            $li.setAttribute("class", "mine");
+            arrow.setAttribute("class", "arrow");
+            qpText.setAttribute("class", "clearfloat qpText");
+        } else {
+            $li.setAttribute("class", "other");
+            arrow.setAttribute("class", "other-arrow");
+            qpText.setAttribute("class", "clearfloat other-qpText");
+            if((obj.name)=='custom') {
+                img.setAttribute("class", "kf-img");
+                mz.setAttribute("class", "name");
+                mz.innerHTML = ("手游花花");
+            } else {
+                img.setAttribute("class", "user-img");
+                mz.setAttribute("class", "name");
+                mz.innerHTML = ("用户");
+            }
+        }
+
+        // if((obj.name)=='custom'){
+        //     var img = 
+        // }
+        var $dataspan = document.createElement('div');
+        $dataspan.setAttribute("class", "spanText");
+        var $data = document.createTextNode(obj.data);
+        $dataspan.appendChild($data);
+        conText.appendChild(time);
+
+        var $list = document.getElementById('chatlist');
+        if((obj.name)=='custom') {
+            $li.appendChild(img);
+            $li.appendChild(mz);
+        } else {
+            $li.appendChild(img);
+            $li.appendChild(mz);
+        }
+        $li.appendChild(arrow);
+        $li.appendChild($dataspan);
+        qpText.appendChild($li);
+        conText.appendChild(qpText);
+        $list.appendChild(conText);
+        document.getElementById("hxfs").onclick = function createChatNode(obj, ismine){
+            var today = new Date();
+            var hour = today.getHours();
+            var minute = today.getMinutes();
+
+            var apm = "上午";
+            if (hour > 12) {
+                hour = hour - 12;
+                apm = "下午";
+            }
+
+            if (minute < 10) {
+                minute = "0" + minute;
+            }
+
+            if (hour < 10) {
+                hour = "0" + hour;
+            }
+            var time = document.createElement('div');
+            time.className = 'sendTime';
+            time.innerHTML = (apm+hour+':'+minute);
+            var dd = document.createElement("div");
+            var tContent = document.createElement("div");
+            var one= document.createElement("div");
+            var two= document.createElement("div");
+            var three= document.createElement("div");
+            var four= document.createElement("div");
+            one.innerHTML = ("订单号：SYZH20180531-012007050");
+            two.innerHTML = ("商品标题：狼人杀人气号");
+            three.innerHTML = ("商品类型：帐号");
+            four.innerHTML = ("游戏区服：狼人杀(手机游戏)/苹果/微信(苹果)/全区全服");
+            one.setAttribute("id", "ddText");
+            two.setAttribute("id", "ddText2");
+            three.setAttribute("id", "ddText3");
+            four.setAttribute("id", "ddText4");
+            tContent.appendChild(one);
+            tContent.appendChild(two);
+            tContent.appendChild(three);
+            tContent.appendChild(four);
+            tContent.setAttribute("class", "clearfloat tsdd");
+            dd.setAttribute("class", "clearfloat conText");
+            dd.appendChild(time);
+            dd.appendChild(tContent);
+            $list.appendChild(dd);
+            $('.hxborder-conn').slideToggle("show");
+        };
+    }
+
+    // 接受到的信息的展示
+    function showMessage(obj) {
+
+        var div = document.getElementById('entername');
+
+        // 如果接受到的消息中群聊的id不是空的，并且这个群聊和当前我所在的群是一致的，那么我们就是在一个群里
+        if (obj.groupnumber != undefined && obj.groupnumber == user.group) {
+             
+            if (user.name == obj.name) {
+                 // 这里说明是自己发的消息
+                if (obj.data == undefined) {
+                    return;
+                }
+                createChatNode(obj, true);
+
+            } else {
+                 // 是好友发送的消息
+                createChatNode(obj, false);
+            }
+
+        } else {
+
+            // 如果不是群聊的是时候
+            if (user.name == obj.name) {
+                // 自己发送的消息
+                if (obj.data == undefined) {
+                    return;
+                }
+                createChatNode(obj, true);
+
+            } else {
+                // 好有发送的消息，这里的判断是要判断要发送的是人是不是给我的
+                if (obj.toname == user.name) {
+                    createChatNode(obj, false);
+                }
+            }
+        }
+    }
+
+    // 进入会话的人的信息
+
+    // 连接成功建立的回调方法
+    websocket.onopen = function(e) {
+        // 建立连接后，要根据页面的url得知发起会话的人是想给谁发，或者在那个群里发
+        var url = window.location.href;
+        var splitobj = spliturl(url);
+
+        user.name = splitobj.username;
+        user.group = splitobj.groupnumber;
+
+        if (user.group == undefined) {
+            user.lineType = 1; //单聊
+        } else {
+            user.lineType = 0; //群聊
+        }
+        user.type = "enter";
+        user.toname = splitobj.toname;
+  
+        websocket.send(JSON.stringify(user));
+        // 这里是把发起会话的人的信息告诉服务器
+
+        // 发送消息
+        document.getElementById("sendBtn").onclick = function() {
+
+            var txt = document.getElementById("sendText").value;
+            document.getElementById('sendText').value = '';
+            if (txt) {
+                user.type = "message";
+                user.data = txt;
+                websocket.send(JSON.stringify(user));
+            }
+        }
+    }
+
+    // 查分字符串
+    function spliturl(url) {
+        var obj = {};
+        var array = url.split('name=');
+        if (array[1].indexOf('&group=') > -1) {
+            //如果包含group  说明是群聊
+            var group = array[1].split('&group=');
+            obj.groupnumber = group[1];
+            obj.username = group[0];
+        } else {
+            if (array[1].indexOf('&to=') > -1) {
+                var toArray = array[1].split('&to=');
+                obj.username = toArray[0];
+                obj.toname = toArray[1];
+            } else {
+                obj.username = array[1];
+            }
+        }
+
+        return obj;
+
+    }
+
+    //接收到消息的回调方法
+    websocket.onmessage = function(e) {
+        // if (e == '好友在忙碌') {
+        //     console.log('e', e);
+        //     websocket.close();
+        //     return;
+        // }
+        var mes = JSON.parse(e.data);
+        showMessage(mes);
+        
+    }
+
+    //连接关闭的回调方法
+    websocket.onclose = function() {
+        console.log("websocket close");
+    }
+
+
+    //连接发生错误的回调方法
+    websocket.onerror = function() {
+        alert("Webscoket连接发生错误");
+    }
+
+    //监听窗口关闭事件，当窗口关闭时，主动去关闭websocket连接，防止连接还没断开就关闭窗口，server端会抛异常。
+    window.onbeforeunload = function() {
+        websocket.close();
+    }
+    </script>
+</body>
+<!-- 
+    免责声明 - Gww(黑羽KT)
+    除注明的服务条款外，
+    其他一切因访问此网页而引致之任何意外、
+    疏忽、合约毁坏、诽谤、版权或知识产权侵犯及其所造成的损失，
+    Gww(黑羽KT)概不负责，亦不承担任何法律责任。
+ -->
+</html>
